@@ -4,16 +4,16 @@
     "name": "JellyFusion",
     "description": "All-in-one Jellyfin plugin: Netflix-style slider with auto-trailers (TMDB), quality badges (4K/HDR/LAT/SUB/NUEVO/KID), studios section, theme switcher (Netflix, Prime, Disney+, Apple TV+, Crunchyroll, Paramount+) and Discord/Telegram notifications.",
     "overview": "Combines Editor's Choice and JellyTag into a single unified plugin with multi-language support (es/en/pt/fr).",
-    "owner": "YOUR_GITHUB_USERNAME",
+    "owner": "KOOL4",
     "category": "General",
-    "imageUrl": "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/jellyfusion/main/assets/logo.png",
+    "imageUrl": "https://raw.githubusercontent.com/KOOL4/Jellyfusion/main/assets/logo.png",
     "versions": [
       {
-        "version": "1.0.0",
+        "version": "1.0.0.0",
         "changelog": "Initial release — Editor's Choice slider with TMDB trailers, JellyTag badges (LAT/SUB/NUEVO/KID), Studios section, Theme switcher (6 themes), Discord & Telegram notifications, multi-language UI (es/en/pt/fr).",
         "targetAbi": "10.10.0.0",
-        "sourceUrl": "https://github.com/KOOL4/jellyfusion/releases/download/v1.0.0/JellyFusion-v1.0.0.zip",
-        "checksum": "PLACEHOLDER_MD5_CHECKSUM",
+        "sourceUrl": "https://github.com/KOOL4/Jellyfusion/releases/download/v1.0.0/JellyFusion-v1.0.0.zip",
+        "checksum": "00000000000000000000000000000000",
         "timestamp": "2026-04-20 00:00:00"
       }
     ]

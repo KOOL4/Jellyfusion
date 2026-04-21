@@ -46,19 +46,16 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
     {
+        // NOTE: CSS and JS are inlined into index.html so the single-page
+        // delivery survives Jellyfin's plugin-page sanitizer in all setups.
         var prefix = GetType().Namespace + ".Web.";
         return new[]
         {
             new PluginPageInfo
             {
-                Name        = Name,
+                Name                 = Name,
                 EmbeddedResourcePath = prefix + "index.html",
                 EnableInMainMenu     = true
-            },
-            new PluginPageInfo
-            {
-                Name        = Name + " (script)",
-                EmbeddedResourcePath = prefix + "js" + ".main.js"
             }
         };
     }

@@ -1,5 +1,90 @@
+name: Build & Release JellyFusion
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH:   'src/JellyFusion/JellyFusion.csproj'
+
+jobs:
+  build:
+    name: Build plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build
+        run: |
+          dotnet build ${{ env.PROJECT_PATH }} \
+            --configuration Release \
+            --no-restore
+
+      - name: Publish
+        run: |
+          dotnet publish ${{ env.PROJECT_PATH }} \
+            --configuration Release \
+            --no-restore \
+            --output ./publish
+
+      - name: Package ZIP
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          cd publish
+          zip -r "../JellyFusion-v${VERSION}.zip" *.dll
+          cd ..
+          echo "PLUGIN_ZIP=JellyFusion-v${VERSION}.zip" >> $GITHUB_ENV
+          echo "PLUGIN_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Compute MD5 checksum
+        run: |
+          MD5=$(md5sum "${{ env.PLUGIN_ZIP }}" | awk '{print $1}')
+          echo "PLUGIN_MD5=${MD5}" >> $GITHUB_ENV
+
+      - name: Update manifest.json
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+          const version  = process.env.PLUGIN_VERSION;
+          const entry = {
+            version:   version + '.0',
+            changelog: `Release ${version}`,
+            targetAbi: "10.10.0.0",
+            sourceUrl: `https://github.com/KOOL4/Jellyfusion/releases/download/v${version}/JellyFusion-v${version}.zip`,
+            checksum:  process.env.PLUGIN_MD5,
+            timestamp: new Date().toISOString().replace('T',' ').substring(0,19)
+          };
+          manifest[0].versions.unshift(entry);
+          fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2));
+          console.log('manifest.json updated:', version);
+          EOF
+
+      - name: Commit updated manifest
+        uses: EndBug/add-and-commit@v9
+        with:
+          add:            'manifest.json'
+          message:        'chore: update manifest for ${{ github.ref_name }}'
+          default_author: github_actions
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PLUGIN_ZIP }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
